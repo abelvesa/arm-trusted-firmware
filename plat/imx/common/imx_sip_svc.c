@@ -30,6 +30,9 @@ static uintptr_t imx_sip_handler(unsigned int smc_fid,
 	case IMX_SIP_GET_SOC_INFO:
 		SMC_RET1(handle, imx_soc_info_handler(smc_fid, x1, x2, x3));
 		break;
+	case  IMX_SIP_GPC:
+		SMC_RET1(handle, imx_gpc_handler(smc_fid, x1, x2, x3));
+		break;
 #endif
 #if (defined(PLAT_imx8qm) || defined(PLAT_imx8qx))
 	case  IMX_SIP_SRTC:

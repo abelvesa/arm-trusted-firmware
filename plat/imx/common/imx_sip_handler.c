@@ -13,6 +13,7 @@
 #include <common/runtime_svc.h>
 #include <imx_sip_svc.h>
 #include <sci/sci.h>
+#include <gpc.h>
 
 #if defined(PLAT_imx8qm) || defined(PLAT_imx8qx)
 
@@ -165,6 +166,22 @@ static uint64_t imx_get_commit_hash(u_register_t x2,
 	} while (parse != NULL);
 
 	return hash;
+}
+
+int imx_gpc_handler(uint32_t smc_fid,
+		    u_register_t x1,
+		    u_register_t x2,
+		    u_register_t x3)
+{
+	switch (x1) {
+	case IMX_SIP_GPC_CORE_WAKE:
+		imx_a53_core_wake(x2);
+		break;
+	default:
+		return SMC_UNK;
+	}
+
+	return 0;
 }
 
 uint64_t imx_buildinfo_handler(uint32_t smc_fid,
