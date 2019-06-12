@@ -16,6 +16,14 @@
 
 #include <gpc.h>
 
+static uint32_t gpc_imr_offset[] = {
+	IMX_GPC_BASE + IMR1_CORE0_A53,
+	IMX_GPC_BASE + IMR1_CORE1_A53,
+	IMX_GPC_BASE + IMR1_CORE2_A53,
+	IMX_GPC_BASE + IMR1_CORE3_A53,
+	IMX_GPC_BASE + IMR1_CORE0_M4,
+};
+
 /* use wfi power down the core */
 void imx_set_cpu_pwr_off(unsigned int core_id)
 {
@@ -117,23 +125,18 @@ void imx_set_cluster_powerdown(unsigned int last_core, uint8_t power_state)
 void imx_gpc_init(void)
 {
 	uint32_t val;
-	int i;
+	int i, j;
 	/* mask all the interrupt by default */
-	for (i = 0; i < 4; i++) {
-		mmio_write_32(IMX_GPC_BASE + IMR1_CORE0_A53 + i * 4, ~0x0);
-		mmio_write_32(IMX_GPC_BASE + IMR1_CORE1_A53 + i * 4, ~0x0);
-		mmio_write_32(IMX_GPC_BASE + IMR1_CORE2_A53 + i * 4, ~0x0);
-		mmio_write_32(IMX_GPC_BASE + IMR1_CORE3_A53 + i * 4, ~0x0);
-		mmio_write_32(IMX_GPC_BASE + IMR1_CORE0_M4 + i * 4, ~0x0);
-	}
+	for (i = 0; i < 4; i++)
+		for (j = 0; j < 4; j++)
+			mmio_write_32(gpc_imr_offset[j] + i * 4, ~0x0);
+
 	/* Due to the hardware design requirement, need to make
 	 * sure GPR interrupt(#32) is unmasked during RUN mode to
 	 * avoid entering DSM mode by mistake.
 	 */
-	mmio_write_32(IMX_GPC_BASE + IMR1_CORE0_A53, 0xFFFFFFFE);
-	mmio_write_32(IMX_GPC_BASE + IMR1_CORE1_A53, 0xFFFFFFFE);
-	mmio_write_32(IMX_GPC_BASE + IMR1_CORE2_A53, 0xFFFFFFFE);
-	mmio_write_32(IMX_GPC_BASE + IMR1_CORE3_A53, 0xFFFFFFFE);
+	for (j = 0; j < 4; j++)
+		mmio_write_32(gpc_imr_offset[j], 0xFFFFFFFE);
 
 	/* use external IRQs to wakeup C0~C3 from LPM */
 	val = mmio_read_32(IMX_GPC_BASE + LPCR_A53_BSC);
