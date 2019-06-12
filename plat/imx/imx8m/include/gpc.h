@@ -95,6 +95,8 @@ void imx_gpc_init(void);
 void imx_set_cpu_secure_entry(unsigned int core_index, uintptr_t sec_entrypoint);
 void imx_set_cpu_pwr_off(unsigned int core_index);
 void imx_set_cpu_pwr_on(unsigned int core_index);
+void imx_set_a53_core_awake(uint32_t core_id);
+void imx_a53_core_wake(uint32_t cpumask);
 void imx_set_cpu_lpm(unsigned int core_index, bool pdn);
 void imx_set_cluster_standby(bool retention);
 void imx_set_cluster_powerdown(unsigned int last_core, uint8_t power_state);

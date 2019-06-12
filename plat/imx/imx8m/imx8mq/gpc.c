@@ -52,6 +52,26 @@ void imx_set_cpu_lpm(unsigned int core_id, bool pdn)
 	}
 }
 
+static void imx_gpc_mask_irq0(uint32_t core_id, uint32_t mask)
+{
+	if (mask)
+		mmio_setbits_32(gpc_imr_offset[core_id], 1);
+	else
+		mmio_clrbits_32(gpc_imr_offset[core_id], 1);
+}
+
+void imx_a53_core_wake(uint32_t cpumask)
+{
+	for (int i = 0; i < 4; i++)
+		if (cpumask & (1 << i))
+			imx_gpc_mask_irq0(i, false);
+}
+
+void imx_set_a53_core_awake(uint32_t core_id)
+{
+	imx_gpc_mask_irq0(core_id, true);
+}
+
 void imx_pup_pdn_slot_config(int last_core, bool pdn)
 {
 	if (pdn) {
